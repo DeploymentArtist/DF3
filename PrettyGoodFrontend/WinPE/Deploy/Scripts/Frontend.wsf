@@ -1,0 +1,554 @@
+<job id="ZTIConnect">
+   <script language="VBScript" src="ZTIUtility.vbs"/>
+   <script language="VBScript" src="ZTIDataAccess.vbs"/>
+   <script language="VBScript">
+
+'//////////////////////////////////////////////////
+'//
+'// Script File:
+'//
+'//  Frontend.wsf
+'//
+'//   This script drives the Frontend for ConfigMgr 2007
+'//
+'//   Author: Johan Arwidmark	
+'//   URL: http://www.deployvista.com
+'//   
+'//   Disclaimer
+'//   This script is provided "AS IS" without express 
+'//   or implied warranty of any kind.
+'//
+'//////////////////////////////////////////////////
+
+
+ZTIProcess
+
+Function ZTIProcess()
+
+	Dim iRetVal
+	Dim sCmd
+
+
+	' Initialization
+
+	iRetVal = Success
+	oEnvironment.Item("DeploymentMethod") = "SCCM"
+	
+    ' Clear the oEnvironment Items used later on
+                
+    oEnvironment.Item("OSDCOMPUTERNAME") = ""
+    oEnvironment.Item("COLLECTIONID") = ""
+    oEnvironment.Item("ROLE001") = ""
+    oEnvironment.Item("COMPUTERDESCRIPTION") = ""
+    oEnvironment.Item("MACHINEOBJECTOU") = ""
+
+	'//----------------------------------------------------------------------------
+	'//  Gather information
+	'//----------------------------------------------------------------------------
+
+
+	' Process bootstrap rules
+	
+	sCmd = "wscript.exe """ & oUtility.ScriptDir & "\ZTIGather.wsf"" "
+    iRetVal = RunAndLog(sCmd, true)
+	
+	' Delete Computer from ConfigMgr
+
+	sDeleteComputerInConfigMgr = DeleteComputerInConfigMgr
+
+
+
+	' Get a list of task sequences
+
+	sTaskSequenceList = GetTaskSequenceList
+	
+
+	' Get a list of organizational units from Active Directory
+
+	sGetOUList = GetOUList
+	
+  	
+	
+	' Get a list of roles from the MDT database
+
+	sRoleList = GetRoleList
+	
+
+	' Check if the computer is known to SCCM
+
+	bKnownToSCCM = IsComputerKnown
+	
+	If bKnownToSCCM = True then
+		oLogging.CreateEntry "Computer is known to SCCM", LogTypeInfo
+	Else
+		oLogging.CreateEntry "Computer is Not known to SCCM", LogTypeInfo
+	End if
+
+	' Check if the computer name exists in the MDT database
+
+	sGetComputerName = GetComputerName
+	
+	If sGetComputerName <> "" then
+		oLogging.CreateEntry "Computer Name known to MDT, computername is " & sGetComputerName, LogTypeInfo
+	    oEnvironment.Item("OSDCOMPUTERNAME") = sGetComputerName	
+	    
+	    ' Also get role information for the Computer
+	    sGetComputerRole = GetComputerRole
+	    If sGetComputerRole <> "" then
+	        oLogging.CreateEntry "Current Computer Role is " & sGetComputerRole, LogTypeInfo
+	        oEnvironment.Item("ROLE") = sGetComputerRole
+	    Else
+	        oLogging.CreateEntry "No role information in MDT database", LogTypeInfo
+	    End If	
+	    
+	    ' Also get description information for the Computer
+	    sGetComputerDescription = GetComputerDescription
+	    If sGetComputerDescription <> "" then
+	        oLogging.CreateEntry "Current Computer Description is " & sGetComputerDescription, LogTypeInfo
+	        oEnvironment.Item("COMPUTERDESCRIPTION") = sGetComputerDescription
+	    Else
+	        oLogging.CreateEntry "No description information in MDT database", LogTypeInfo
+	    End If	
+
+	Else
+		oLogging.CreateEntry "Computer Name is not in MDT database", LogTypeInfo
+	End if
+	
+
+
+	' Start the Frontend HTA 
+	oEnvironment.Item("WizardComplete") = "N"
+	oLogging.CreateEntry "Start the Frontend HTA", LogTypeInfo
+	
+	sCmd = "mshta.exe " & Chr(34) & oUtility.ScriptDir & "\Frontend.hta" & Chr(34)
+    
+    oLogging.CreateEntry "Executing: " & sCmd, LogTypeInfo
+    oShell.run sCmd,0,True
+    
+	' Make sure the deployment wizard completed
+
+	If oEnvironment.Item("WizardComplete") <> "Y" then
+		oLogging.CreateEntry "ERROR - The Deployment Wizard was cancelled or did not complete successfully - Notifying User (Error Number = " & Err.Number & ") (Error Description: " & Err.Description & ").", LogTypeError
+		msgbox "The Deployment Wizard was cancelled or did not complete successfully.  The deployment will not proceed."
+		Exit Function
+	End if
+
+    ' Add or Update Computer information in the MDT database
+
+    bUpdateComputer = UpdateComputer
+
+	If bUpdateComputer = True then
+		oLogging.CreateEntry "MDT Database update was successful", LogTypeInfo
+	Else
+		oLogging.CreateEntry "Could not update the database", LogTypeInfo
+	End if
+
+
+	' Add Computer to specified collection
+	
+	If AddComputerToCollection Then
+        	' Wait for Advertisement
+	        oLogging.CreateEntry "Waiting for Advertisement", LogTypeInfo
+        	WScript.Sleep 5000
+
+		For iCount = 1 to 25
+			oLogging.CreateEntry "Sleeping 5 seconds to wait for a Task Sequence advertisement (Attempt " & iCount & " of 25).", LogTypeInfo
+			WScript.Sleep 5000
+
+			If HasAdvertisement then
+				oLogging.CreateEntry "Found a Task Sequnce advertisement, continuing ...", LogTypeInfo
+
+                ' Reset all oEnvironment Items, they will be re-read by the Gather action later on
+                
+                oEnvironment.Item("OSDCOMPUTERNAME") = ""
+                oEnvironment.Item("COLLECTIONID") = ""
+                oEnvironment.Item("ROLE001") = ""
+                oEnvironment.Item("COMPUTERDESCRIPTION") = ""
+                oEnvironment.Item("MACHINEOBJECTOU") = ""
+
+				WScript.Sleep 15000  ' Wait 15 more seconds, just in case
+				
+				Exit For
+			End if
+         	Next
+     End if
+
+
+	
+End Function
+
+
+Function GetComputerRole
+
+	oLogging.CreateEntry "Getting Computer Role", LogTypeInfo
+
+	Dim oService
+	Dim oXML
+	Dim sTaskSequenceList
+
+	' Create the web service instance
+
+	Set oService = new WebService
+	oService.IniFile = oEnvironment.Item("RulesFile")
+	oService.SectionName = "GetComputerRole"
+
+	' Call the web service
+
+	Set oXML = oService.Query
+
+	If oXML is Nothing then
+		oLogging.CreateEntry "Unable to query web service.", LogTypeWarning
+		sGGetComputerRole = ""
+	Else
+		oXML.setProperty "SelectionNamespaces", "xmlns:nsa='http://www.deployvista.com'"
+		sGetComputerRole = oXML.SelectSingleNode("nsa:string").Text
+	End if
+
+    GetComputerRole = sGetComputerRole
+
+End Function
+
+
+Function GetComputerName
+
+	oLogging.CreateEntry "Getting Computer Name", LogTypeInfo
+
+	Dim oService
+	Dim oXML
+	Dim sGetComputerName
+
+	' Create the web service instance
+
+	Set oService = new WebService
+	oService.IniFile = oEnvironment.Item("RulesFile")
+	oService.SectionName = "GetComputerName"
+
+	' Call the web service
+
+	Set oXML = oService.Query
+
+	If oXML is Nothing then
+		oLogging.CreateEntry "Unable to query web service.", LogTypeWarning
+		sGetComputerName = ""
+	Else
+		oXML.setProperty "SelectionNamespaces", "xmlns:nsa='http://www.deployvista.com'"
+		sGetComputerName = oXML.SelectSingleNode("nsa:string").Text
+	End if
+
+    GetComputerName = sGetComputerName
+
+End Function
+
+Function GetComputerDescription
+
+	oLogging.CreateEntry "Getting Computer Description", LogTypeInfo
+
+	Dim oService
+	Dim oXML
+	Dim sGetComputerDescription
+
+	' Create the web service instance
+
+	Set oService = new WebService
+	oService.IniFile = oEnvironment.Item("RulesFile")
+	oService.SectionName = "GetComputerDescription"
+
+	' Call the web service
+
+	Set oXML = oService.Query
+
+	If oXML is Nothing then
+		oLogging.CreateEntry "Unable to query web service.", LogTypeWarning
+		sGetComputerDescription = ""
+	Else
+		oXML.setProperty "SelectionNamespaces", "xmlns:nsa='http://www.deployvista.com'"
+		sGetComputerDescription = oXML.SelectSingleNode("nsa:string").Text
+	End if
+
+    GetComputerDescription = sGetComputerDescription
+
+End Function
+
+
+Function UpdateComputer
+
+	Dim oService
+	Dim oXML
+
+	' Create the web service instance
+
+	Set oService = new WebService
+	oService.IniFile = oEnvironment.Item("RulesFile")
+	oService.SectionName = "UpdateComputer"
+
+	' Make the web service call
+
+	UpdateComputer = false
+	Set oXML = oService.Query
+
+	If oXML is Nothing then
+		oLogging.CreateEntry "Unable to query web service.", LogTypeWarning
+	Else
+	    oXML.setProperty "SelectionNamespaces", "xmlns:nsa='http://www.deployvista.com'"
+		If UCase(oXML.SelectSingleNode("nsa:boolean").Text) = "TRUE" then
+		    UpdateComputer = true
+		End If
+	End if
+
+End Function
+
+
+Function GetRoleList
+
+	oLogging.CreateEntry "Getting Role List", LogTypeInfo
+
+	Dim oService
+	Dim oXML
+	Dim sRoleList
+
+	' Create the web service instance
+
+	Set oService = new WebService
+	oService.IniFile = oEnvironment.Item("RulesFile")
+	oService.SectionName = "GetRoleList"
+
+	' Call the web service
+
+	Set oXML = oService.Query
+
+	If oXML is Nothing then
+		oLogging.CreateEntry "GetRoleList: Unable to query web service.", LogTypeWarning
+		sRoleList = ""
+	Else
+        oXML.loadXML HTMLDecode(oXML.documentElement.Text)
+        oXML.save(oUtility.ScriptDir & "\RoleList.xml")
+	End if
+
+    GetRoleList = sRoleList
+
+End Function
+
+Function GetOUList
+
+	oLogging.CreateEntry "Getting Organizational Units List", LogTypeInfo
+
+	Dim oService
+	Dim oXML
+	Dim sGetOUList
+
+	' Create the web service instance
+
+	Set oService = new WebService
+	oService.IniFile = oEnvironment.Item("RulesFile")
+	oService.SectionName = "GetOUList"
+
+
+	' Call the web service
+
+	Set oXML = oService.Query
+
+
+	If oXML is Nothing then
+		oLogging.CreateEntry "GetOUList: Unable to query web service.", LogTypeWarning
+		sOUList = ""
+	Else
+        oXML.loadXML HTMLDecode(oXML.documentElement.Text)
+        oXML.save(oUtility.ScriptDir & "\OUList.xml")
+	End if
+
+	GetOUList = sGetOUList
+	
+End Function
+
+Function GetTaskSequenceList
+
+	oLogging.CreateEntry "GetTaskSequenceList: Getting Task Sequence List", LogTypeInfo
+
+	Dim oService
+	Dim oXML
+	Dim sTaskSequenceList
+
+	' Create the web service instance
+
+	Set oService = new WebService
+	oService.IniFile = oEnvironment.Item("RulesFile")
+	oService.SectionName = "GetTaskSequenceList"
+
+
+	' Call the web service
+
+	Set oXML = oService.Query
+
+
+	If oXML is Nothing then
+		oLogging.CreateEntry "GetTaskSequenceList: Unable to query web service.", LogTypeWarning
+		sTaskSequenceList = ""
+	Else
+        oXML.loadXML HTMLDecode(oXML.documentElement.Text)
+        oXML.save(oUtility.ScriptDir & "\TaskSequenceList.xml")
+	End if
+
+	GetTaskSequenceList = sTaskSequenceList
+	
+End Function
+
+Function HTMLDecode(byVal encodedstring)
+
+         Dim tmp, i
+         tmp = encodedstring
+         tmp = Replace( tmp, "&quot;", chr(34) )
+         tmp = Replace( tmp, "&lt;"  , chr(60) )
+         tmp = Replace( tmp, "&gt;"  , chr(62) )
+         tmp = Replace( tmp, "&amp;" , chr(38) )
+         tmp = Replace( tmp, "&nbsp;", chr(32) )
+         For i = 1 to 255
+                 tmp = Replace( tmp, "&#" & i & ";", chr( i ) )
+         Next
+         HTMLDecode = tmp
+End Function
+
+
+
+
+
+Function IsComputerKnown
+
+	Dim oService
+	Dim oXML
+
+	' Create the web service instance
+
+	Set oService = new WebService
+	oService.IniFile = oEnvironment.Item("RulesFile")
+	oService.SectionName = "IsComputerKnown"
+
+	' Make the web service call
+
+	IsComputerKnown = false
+	Set oXML = oService.Query
+
+	oXML.setProperty "SelectionNamespaces", "xmlns:nsa='http://www.deployvista.com'"
+
+
+	If oXML is Nothing then
+		oLogging.CreateEntry "Unable to call IsComputerKnown web service.", LogTypeWarning
+	ElseIf UCase(oXML.SelectSingleNode("nsa:boolean").Text) = "TRUE" then
+		IsComputerKnown = true
+	End if
+
+End Function
+
+Function AddComputerToCollection
+
+	Dim oService
+	Dim oXML
+
+	' Create the web service instance
+
+	Set oService = new WebService
+	oService.IniFile = oEnvironment.Item("RulesFile")
+	oService.SectionName = "AddComputerToCollection"
+
+	' Make the web service call
+
+	AddComputerToCollection = false
+	Set oXML = oService.Query
+	oXML.setProperty "SelectionNamespaces", "xmlns:nsa='http://www.deployvista.com'"
+
+
+	If oXML is Nothing then
+		oLogging.CreateEntry "Unable to call AddComputerToCollection web service.", LogTypeWarning
+	ElseIf UCase(oXML.SelectSingleNode("nsa:boolean").Text) = "TRUE" then
+		AddComputerToCollection = true
+	End if
+
+End Function
+
+Function HasAdvertisement
+
+	Dim oService
+	Dim oXML
+
+	' Create the web service instance
+
+	Set oService = new WebService
+	oService.IniFile = oEnvironment.Item("RulesFile")
+	oService.SectionName = "HasAdvertisement"
+
+	' Make the web service call
+
+	HasAdvertisement = false
+	Set oXML = oService.Query
+	oXML.setProperty "SelectionNamespaces", "xmlns:nsa='http://www.deployvista.com'"
+
+	If oXML is Nothing then
+		oLogging.CreateEntry "Unable to call HasAdvertisement web service.", LogTypeWarning
+	ElseIf UCase(oXML.SelectSingleNode("nsa:boolean").Text) = "TRUE" then
+		HasAdvertisement = true
+	End if
+
+End Function
+
+Function DeleteComputerInConfigMgr
+
+	Dim oService
+	Dim oXML
+
+	' Create the web service instance
+
+	Set oService = new WebService
+	oService.IniFile = oEnvironment.Item("RulesFile")
+	oService.SectionName = "DeleteComputerInConfigMgr"
+
+	' Make the web service call
+
+	DeleteComputerInConfigMgr = false
+	Set oXML = oService.Query
+	oXML.setProperty "SelectionNamespaces", "xmlns:nsa='http://www.deployvista.com'"
+
+	If oXML is Nothing then
+		oLogging.CreateEntry "Unable to call DeleteComputerInConfigMgr web service.", LogTypeWarning
+	ElseIf UCase(oXML.SelectSingleNode("nsa:boolean").Text) = "TRUE" then
+		DeleteComputerInConfigMgr = true
+	End if
+
+End Function
+
+
+
+Function RunAndLog(sCmd, bDebuggable)
+
+	Dim iRetVal
+	Dim iShow
+
+
+	If oLogging.Debug and bDebuggable then
+		sCmd = sCmd & " /debug:true"
+		iShow = 1
+	Else
+		iShow = 0
+	End if
+
+
+	oLogging.CreateEntry "About to run command: " & sCmd, LogTypeInfo
+
+	On Error Resume Next
+	iRetVal = oShell.Run(sCmd, iShow, true)
+	If Err then
+		iRetVal = Err.Number
+		oLogging.CreateEntry "ERROR executing command " & sCmd & ": " & Err.Description & " (" & Err.Number & ")", LogTypeError
+	ElseIf iRetVal = -2147021886 or iRetVal = 0 then
+		oLogging.CreateEntry "Successfully executed command " & sCmd & ", rc = " & CStr(iRetVal), LogTypeInfo
+	Else
+		oLogging.CreateEntry "Non-zero return code executing command " & sCmd & ", rc = " & iRetVal, LogTypeWarning
+	End if
+	RunAndLog = iRetVal
+	On Error Goto 0
+
+End Function
+
+
+
+
+   </script>
+</job>

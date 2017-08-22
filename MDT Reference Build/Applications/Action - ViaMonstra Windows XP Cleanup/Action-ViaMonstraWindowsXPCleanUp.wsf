@@ -1,0 +1,125 @@
+<job id="Action-ViaMonstraWindowsXPCleanUp">
+<script language="VBScript" src="..\..\scripts\ZTIUtility.vbs"/>
+   <script language="VBScript">
+
+'//----------------------------------------------------------------------------
+'// Solution: Hydration
+'// Purpose: Used to Clean Up XP Reference Image
+'// Usage: cscript Action-ViaMonstraWindowsXPCleanUp.wsf [/debug:true]
+'// Version: 1.2 - 27 Dec 2010 - Johan Arwidmark
+'//
+'// This script is provided "AS IS" with no warranties, confers no rights and 
+'// is not supported by the authors or Deployment Artist. 
+'//
+'//----------------------------------------------------------------------------
+
+On Error Resume Next
+
+oLogging.CreateEntry "Reference PC Cleanup started", LogTypeInfo
+
+Const WindowsFolder = 0
+Const SystemFolder = 1 
+Const TemporaryFolder = 2
+
+Set sWindowsFolder = oFSO.GetSpecialFolder(WindowsFolder)
+Set sTemporaryFolder = oFSO.GetSpecialFolder(TemporaryFolder)
+
+oLogging.CreateEntry "sWindowsFolder set to: " & sWindowsFolder, LogTypeInfo
+oLogging.CreateEntry "sTemporaryFolder set to: " & sTemporaryFolder, LogTypeInfo
+
+If oFSO.FolderExists(sWindowsFolder & "\SoftwareDistribution\Download\") Then  
+   oFSO.DeleteFolder sWindowsFolder & "\SoftwareDistribution\Download"
+   oLogging.CreateEntry sWindowsFolder & "\SoftwareDistribution\Download Deleted", LogTypeInfo
+End If 
+
+If oFSO.FolderExists(sWindowsFolder & "\Source\i386\") Then  
+   oFSO.DeleteFolder sWindowsFolder & "\Source\i386"
+   oLogging.CreateEntry sWindowsFolder & "\Source\i386 Deleted", LogTypeInfo
+End If 
+
+If oFSO.FolderExists(sWindowsFolder & "\Source\amd64\") Then  
+   oFSO.DeleteFolder sWindowsFolder & "\Source\amd64"
+   oLogging.CreateEntry sWindowsFolder & "\Source\amd64 Deleted", LogTypeInfo
+End If 
+
+
+Set Folders = oFSO.GetFolder(sWindowsFolder).SubFolders
+
+For Each Folder In Folders
+
+	If UCase(Left(Folder.Name,4)) = "$MSI" Then
+
+   		oFSO.DeleteFolder Folder.Path
+		oLogging.CreateEntry Folder.Path & " Deleted", LogTypeInfo
+
+	End If
+
+	If UCase(Left(Folder.Name,12)) = "$NTUNINSTALL" Then
+
+   		oFSO.DeleteFolder Folder.Path
+		oLogging.CreateEntry Folder.Path & " Deleted", LogTypeInfo
+	End If
+	
+Next
+
+Set Folder = oFSO.GetFolder(sWindowsFolder)
+
+Set oFiles = Folder.Files
+For Each oFile in oFiles
+	If Left(UCase(oFile.Name),2) = "KB" And Right(UCase(oFile.Name),4) = ".LOG" Then
+		oFSO.DeleteFile oFile.Path
+		oLogging.CreateEntry oFile.Path & " Deleted", LogTypeInfo
+	End IF
+Next
+
+
+If oFSO.FolderExists(sTemporaryFolder) Then
+	oFSO.DeleteFile sTemporaryFolder & "\*.*",Force
+
+	Set Folders = oFSO.GetFolder(sTemporaryFolder).SubFolders
+
+	For Each Folder In Folders
+   		oFSO.DeleteFolder Folder.Path
+	Next
+	oLogging.CreateEntry "User Temp Directory Cleaned", LogTypeInfo
+End If
+
+If oFSO.FolderExists(sWindowsFolder & "\Temp") Then
+	oFSO.DeleteFile sWindowsFolder & "\Temp\*.*",Force
+
+	Set Folders = oFSO.GetFolder(sWindowsFolder & "\Temp").SubFolders
+
+	For Each Folder In Folders
+   		oFSO.DeleteFolder Folder.Path
+	Next
+	oLogging.CreateEntry "Temp Directory Cleaned", LogTypeInfo
+End If
+
+
+If oFSO.FolderExists("C:\Drivers") Then
+
+	oFSO.DeleteFile "C:\Drivers\*.*",Force
+
+	Set Folders = oFSO.GetFolder("C:\Drivers").SubFolders
+
+	For Each Folder In Folders
+
+		If UCase(Left(Folder.Name,4)) = "REF_" Then
+
+			' Do Nothing
+
+		Else
+
+   			oFSO.DeleteFolder Folder.Path
+
+		End if
+	Next
+	oLogging.CreateEntry "Drivers Folder Cleaned", LogTypeInfo
+End If
+
+
+oLogging.CreateEntry "Reference PC Cleanup Ended", LogTypeInfo
+
+
+   </script>
+</job>

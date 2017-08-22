@@ -1,0 +1,68 @@
+<job id="Install-IE8ForXP">
+<script language="VBScript" src="..\..\scripts\ZTIUtility.vbs"/>
+<script language="VBScript"> 
+
+'//----------------------------------------------------------------------------
+'// Purpose: Used to install Internet Explorer for Windows XP 
+'// Usage: cscript Install-IE8ForXP.wsf [/debug:true]
+'// Version: 1.0 - 13 Nov 2011 - Mikael Nystrom
+'//
+'// This script is provided "AS IS" with no warranties, confers no rights and 
+'// is not supported by the authors or Deployment Artist. 
+'//
+'//----------------------------------------------------------------------------
+
+'//----------------------------------------------------------------------------
+'// Global constant and variable declarations
+'//---------------------------------------------------------------------------- 
+
+Option Explicit 
+
+Dim iRetVal 
+
+'//----------------------------------------------------------------------------
+'// End declarations
+'//---------------------------------------------------------------------------- 
+
+'//----------------------------------------------------------------------------
+'// Main routine
+'//---------------------------------------------------------------------------- 
+
+On Error Resume Next
+iRetVal = ZTIProcess
+ProcessResults iRetVal
+On Error Goto 0 
+
+'//---------------------------------------------------------------------------
+'//
+'// Function: ZTIProcess()
+'//
+'// Input: None
+'// 
+'// Return: Success - 0
+'// Failure - non-zero
+'//
+'// Purpose: Perform main ZTI processing
+'// 
+'//---------------------------------------------------------------------------
+Function ZTIProcess() 
+
+	
+	Dim sApplicationName
+	Dim sSourceDir
+
+	sSourceDir = oUtility.ScriptDir & "\Source"
+	sApplicationName = "Internet Explorer 8 For Windows XP"
+
+	oLogging.CreateEntry "Install-" & sApplicationName & ": Starting " & sApplicationName & " installation", LogTypeInfo
+
+	iRetVal = oUtility.RunWithHeartbeat("msiexec /i """ & sSourceDir & "\IE8-Setup-Full.msi"" /qb")
+	oLogging.CreateEntry "Install-" & sApplicationName & ": Return code from command = " & iRetVal, LogTypeInfo
+
+	oLogging.CreateEntry "Install-" & sApplicationName & ": Finished " & sApplicationName & " installation", LogTypeInfo
+	
+
+End Function 
+
+</script>
+</job>

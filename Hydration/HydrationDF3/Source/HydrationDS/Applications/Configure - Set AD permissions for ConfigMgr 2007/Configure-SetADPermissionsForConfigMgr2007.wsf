@@ -1,0 +1,127 @@
+<job id="Configure-SetADPermissionsForConfigMgr2012">
+<script language="VBScript" src="..\..\scripts\ZTIUtility.vbs"/>
+<script language="VBScript"> 
+
+'//----------------------------------------------------------------------------
+'// Solution: Hydration
+'// Purpose: Used to create Systems Management container and add permissions
+'// Usage: cscript Configure-SetADPermissionsForConfigMgr2012.wsf [/debug:true]
+'// Version: 1.0 - 11 May 2011 - Johan Arwidmark
+'//
+'// This script is provided "AS IS" with no warranties, confers no rights and 
+'// is not supported by the authors or Deployment Artist. 
+'//
+'//----------------------------------------------------------------------------
+
+'//----------------------------------------------------------------------------
+'// Global constant and variable declaration
+'//---------------------------------------------------------------------------- 
+
+Option Explicit 
+
+Const ADS_ACEFLAG_INHERIT_ACE = 2
+Const ADS_ACETYPE_ACCESS_ALLOWED = 0
+
+Dim iRetVal 
+Dim intRetSts
+
+'//----------------------------------------------------------------------------
+'// End declarations
+'//---------------------------------------------------------------------------- 
+
+'//----------------------------------------------------------------------------
+'// Main routine
+'//---------------------------------------------------------------------------- 
+
+'On Error Resume Next
+iRetVal = ZTIProcess
+ProcessResults iRetVal
+On Error Goto 0 
+
+'//---------------------------------------------------------------------------
+'//
+'// Function: ZTIProcess()
+'//
+'// Input: None
+'// 
+'// Return: Success - 0
+'// Failure - non-zero
+'//
+'// Purpose: Perform main ZTI processing
+'// 
+'//---------------------------------------------------------------------------
+Function ZTIProcess() 
+
+	Dim objRootDSE
+	Dim objADS
+
+	Dim strFullComputer
+	Dim bFound
+	Dim strPath
+	Dim objCN
+	Dim objSystem
+	Dim objSec
+	Dim objACL
+	Dim objACE
+	Dim o
+
+	'// Build the path to the container
+	Set objRootDSE = GetObject("LDAP://RootDSE") 
+	strPath = "LDAP://CN=System Management,CN=System," & objRootDSE.Get("defaultNamingContext")
+
+	'// Make sure the container exists.  If not, create it.
+	  On Error Resume Next
+	  Set objCN = GetObject(strPath)
+	  If Err then
+	    On Error Goto 0
+	    Set objSystem = GetObject("LDAP://CN=System," & objRootDSE.Get("defaultNamingContext"))
+	    Set objCN = objSystem.Create("container", "cn=System Management")
+	    objCN.SetInfo
+	    oLogging.CreateEntry "Configure AD for ConfigMgr 2012: Created 'System Management' container.", LogTypeInfo	
+	  End if
+	  On Error Goto 0
+
+	  ' Get the ACL of the container
+	  Set objSec = objCN.Get("ntSecurityDescriptor")
+	  Set objACL = objSec.DiscretionaryAcl
+
+	  ' Build the NT4-style name for the computer
+	  Set objADS = CreateObject("ADSystemInfo")
+	  strFullComputer = UCase(objADS.DomainShortName & "\CM01$")
+
+	  ' See if the computer is already in the list
+	  For each o in objACL
+	     If UCase(o.Trustee) = strFullComputer then
+	        bFound = true
+	        Exit For
+	     End if
+	  Next
+	  If bFound then
+	     oLogging.CreateEntry "Configure AD for ConfigMgr 2012: " & strFullComputer & " already has rights.", LogTypeInfo	
+	     Exit Function
+	  End if
+
+	  ' Not present?  Then add it.  Build a new ACE
+	  Set objACE = CreateObject("AccessControlEntry") 
+	  objACE.AceType = ADS_ACETYPE_ACCESS_ALLOWED 
+	  objACE.AccessMask = -1
+	  objACE.AceFlags = ADS_ACEFLAG_INHERIT_ACE 
+	  objACE.Trustee = strFullComputer
+
+	  ' Add it to the ACL and apply it to the container
+	  objACL.AddAce objACE
+	  objSec.DiscretionaryAcl = objACL
+	  objCN.Put "ntSecurityDescriptor", Array(objSec)
+	  objCN.SetInfo 
+
+	  oLogging.CreateEntry "Configure AD for ConfigMgr 2012: Successfully granted " & strFullComputer & " full control access to the System Management container.", LogTypeInfo	
+
+	  ' Cleanup
+	  Set objACE = Nothing
+	  Set objACL = Nothing
+	  Set objSec = Nothing
+
+End Function
+
+</script>
+</job>

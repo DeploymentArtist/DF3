@@ -1,0 +1,97 @@
+<job id="Install-ConfigMgr2007R3">
+<script language="VBScript" src="..\..\scripts\ZTIUtility.vbs"/>
+<script language="VBScript"> 
+
+'//----------------------------------------------------------------------------
+'// Solution: Hydration
+'// Purpose: Used to install ConfigMgr 2007 R3
+'// Usage: cscript Install-ConfigMgr2007R3.wsf [/debug:true]
+'// Version: 1.2 - 27 Dec 2010 - Johan Arwidmark
+'//
+'// This script is provided "AS IS" with no warranties, confers no rights and 
+'// is not supported by the authors or Deployment Artist. 
+'//
+'//----------------------------------------------------------------------------
+
+'//----------------------------------------------------------------------------
+'// Global constant and variable declarations
+'//---------------------------------------------------------------------------- 
+
+Option Explicit 
+
+Dim iRetVal 
+
+'//----------------------------------------------------------------------------
+'// End declarations
+'//---------------------------------------------------------------------------- 
+
+'//----------------------------------------------------------------------------
+'// Main routine
+'//---------------------------------------------------------------------------- 
+
+On Error Resume Next
+iRetVal = ZTIProcess
+ProcessResults iRetVal
+On Error Goto 0 
+
+'//---------------------------------------------------------------------------
+'//
+'// Function: ZTIProcess()
+'//
+'// Input: None
+'// 
+'// Return: Success - 0
+'// Failure - non-zero
+'//
+'// Purpose: Perform main ZTI processing
+'// 
+'//---------------------------------------------------------------------------
+Function ZTIProcess() 
+
+	Dim sFile
+	
+	oLogging.CreateEntry "Install-ConfigMgr2007R3: Starting ConfigMgr 2007 R3 installation", LogTypeInfo	
+
+	wscript.sleep 60000
+
+	sFile = oUtility.ScriptDir & "\PreReqs\SCCM2007-SP2-KB977384-ENU.msi"
+	If not oFSO.FileExists(sFile) then
+		oLogging.CreateEntry "Install-ConfigMgr2007R3: " & sFile & " was not found, unable to INSTALL ConfigMgr R3", LogTypeWarning
+		ZTIProcess = Failure
+		Exit Function
+	End if
+	
+	iRetVal = oUtility.RunWithHeartbeat("msiexec /i """ & oUtility.ScriptDir & "\PreReqs\SCCM2007-SP2-KB977384-ENU.msi"" /Passive /norestart /L """ & oUtility.LocalRootPath & "\SMSOSD\OSDLOGS\Install-ConfigMgr2007R3-Prereq.log""")
+
+	if (iRetVal = 0) or (iRetVal = 3010) then
+		ZTIProcess = Success 
+	Else 
+		ZTIProcess = Failure
+		oLogging.CreateEntry "Install-ConfigMgr2007R3: ERROR Installing prereqs.", LogTypeWarning
+	End If
+
+
+	
+	sFile = oUtility.ScriptDir & "\Source\ConfigMgr2007R3.msi"
+	If not oFSO.FileExists(sFile) then
+		oLogging.CreateEntry "Install-ConfigMgr2007R3: " & sFile & " was not found, unable to install ConfigMgr 2007 R3", LogTypeWarning
+		ZTIProcess = Failure
+		Exit Function
+	End if
+	
+	iRetVal = oUtility.RunWithHeartbeat("msiexec /i """ & oUtility.ScriptDir & "\Source\ConfigMgr2007R3.msi"" /Passive /norestart /L """ & oUtility.LocalRootPath & "\SMSOSD\OSDLOGS\Install-ConfigMgr2007R3-Application.log""")
+
+	if (iRetVal = 0) or (iRetVal = 3010) then
+		ZTIProcess = Success 
+	Else 
+		ZTIProcess = Failure
+		oLogging.CreateEntry "Install-ConfigMgr2007R3: Error Installing ConfigMgr 2007 R3. Check the log " & oUtility.LocalRootPath & "\SMSOSD\OSDLOGS\Install-ConfigMgr2007R3-Application.log", LogTypeWarning
+	End If
+		
+	oLogging.CreateEntry "Install-ConfigMgr2007R3: Return code from command = " & iRetVal, LogTypeInfo
+	oLogging.CreateEntry "Install-ConfigMgr2007R3: Finished ConfigMgr 2007 R3 installation", LogTypeInfo	
+
+End Function 
+
+</script>
+</job>

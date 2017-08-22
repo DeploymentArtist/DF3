@@ -1,0 +1,103 @@
+<job id="Configure-WebDAV">
+<script language="VBScript" src="..\..\scripts\ZTIUtility.vbs"/>
+<script language="VBScript"> 
+
+'//----------------------------------------------------------------------------
+'// Solution: Hydration
+'// Purpose: Used to configure WebDAV
+'// Usage: cscript Configure-WebDAV.wsf [/debug:true]
+'// Version: 1.2 - 27 Dec 2010 - Johan Arwidmark
+'//
+'// This script is provided "AS IS" with no warranties, confers no rights and 
+'// is not supported by the authors or Deployment Artist. 
+'//
+'//----------------------------------------------------------------------------
+
+'//----------------------------------------------------------------------------
+'// Global constant and variable declarations
+'//---------------------------------------------------------------------------- 
+
+Option Explicit 
+
+Dim iRetVal 
+
+'//----------------------------------------------------------------------------
+'// End declarations
+'//---------------------------------------------------------------------------- 
+
+'//----------------------------------------------------------------------------
+'// Main routine
+'//---------------------------------------------------------------------------- 
+
+On Error Resume Next
+iRetVal = ZTIProcess
+ProcessResults iRetVal
+On Error Goto 0 
+
+'//---------------------------------------------------------------------------
+'//
+'// Function: ZTIProcess()
+'//
+'// Input: None
+'// 
+'// Return: Success - 0
+'// Failure - non-zero
+'//
+'// Purpose: Perform main ZTI processing
+'// 
+'//---------------------------------------------------------------------------
+Function ZTIProcess() 
+
+	Dim sFile, sPathAppCMD 
+
+	oLogging.CreateEntry "CONFIG WEBDAV: Starting WEBDAV configuration", LogTypeInfo	
+	
+	wscript.sleep 5000
+
+	'//Configure WEBDAV for Configuration Manager
+
+	sPathAppCMD = oENV("SYSTEMROOT") & "\System32\inetsrv\appcmd.exe"
+	If not oFSO.FileExists(sPathAppCMD) then
+		oLogging.CreateEntry "CONFIG WEBDAV: " & sPathAppCMD & " was not found, unable to configure WEBDAV", LogTypeError
+		ZTIProcess = Failure
+		Exit Function
+	End if
+
+	'// Enable WebDAV
+	iRetVal = oShell.Run(sPathAppCMD &  " set config ""Default Web Site/"" /section:system.webServer/webdav/authoring /enabled:true /commit:apphost")
+
+	wscript.sleep 5000
+
+	'// Allow access to hidden files
+	iRetVal = oShell.Run(sPathAppCMD &  " set config ""Default Web Site/"" /section:system.webServer/webdav/authoring /fileSystem.allowHiddenFiles:true /commit:apphost")
+
+	wscript.sleep 5000
+
+	'// Allow anonymous property queries 
+	iRetVal = oShell.Run(sPathAppCMD &  " set config ""Default Web Site/"" /section:system.webServer/webdav/authoring /properties.allowAnonymousPropFind:true /commit:apphost")
+
+	wscript.sleep 5000
+
+	
+	'// Allow infinite property depth
+	iRetVal = oShell.Run(sPathAppCMD &  " set config ""Default Web Site/"" /section:system.webServer/webdav/authoring /properties.AllowInfinitePropFindDepth:true /commit:apphost")
+
+	wscript.sleep 5000
+	
+	'// Set Allow custom properties to false
+	iRetVal = oShell.Run(sPathAppCMD &  " set config ""Default Web Site/"" /section:system.webServer/webdav/authoring /properties.AllowCustomProperties:false /commit:apphost")
+
+	wscript.sleep 5000
+	
+	
+	'// Allow Users read access to all content
+	iRetVal = oShell.Run(sPathAppCMD &  " set config ""Default Web Site/"" /section:system.webServer/webdav/authoringRules /+[users='*',path='*',access='Read'] /commit:apphost")
+
+
+	oLogging.CreateEntry "CONFIG WEBDAV: Finished WEBDAV configuration.", LogTypeInfo
+
+	
+End Function 
+
+</script>
+</job>

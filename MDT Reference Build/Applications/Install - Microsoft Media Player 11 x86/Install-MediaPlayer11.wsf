@@ -1,0 +1,85 @@
+<job id="Install-MediaPlayer11">
+	<script language="VBScript" src="..\..\scripts\ZTIUtility.vbs"/>
+	<script language="VBScript">
+ 
+
+'//----------------------------------------------------------------------------
+'// Solution: Hydration
+'// Purpose: Used to install Media Player 11 x86
+'// Usage: cscript Install-MediaPlayer11.wsf [/debug:true]
+'// Version: 1.2 - 27 Dec 2010 - Johan Arwidmark
+'//
+'// This script is provided "AS IS" with no warranties, confers no rights and 
+'// is not supported by the authors or Deployment Artist. 
+'//
+'//----------------------------------------------------------------------------
+
+'//----------------------------------------------------------------------------
+'// Global constant and variable declarations
+'//---------------------------------------------------------------------------- 
+
+Option Explicit 
+
+Dim iRetVal 
+
+'//----------------------------------------------------------------------------
+'// End declarations
+'//---------------------------------------------------------------------------- 
+
+'//----------------------------------------------------------------------------
+'// Main routine
+'//---------------------------------------------------------------------------- 
+
+'On Error Resume Next
+iRetVal = ZTIProcess
+ProcessResults iRetVal
+On Error Goto 0 
+
+'//---------------------------------------------------------------------------
+'//
+'// Function: ZTIProcess()
+'//
+'// Input: None
+'// 
+'// Return: Success - 0
+'// Failure - non-zero
+'//
+'// Purpose: Perform main ZTI processing
+'// 
+'//---------------------------------------------------------------------------
+Function ZTIProcess() 
+
+	Dim sFile
+	
+	oLogging.CreateEntry "Install-MediaPlayer11: Starting Media Player 11 installation", LogTypeInfo	
+	
+	sFile = oUtility.ScriptDir & "\source\wmp11-windowsxp-x86-enu.exe"
+	If not oFSO.FileExists(sFile) then
+		oLogging.CreateEntry "Install-MediaPlayer11: " & sFile & " was not found, unable to install Starting Windows Installer 4.5", LogTypeError
+		ZTIProcess = Failure
+		Exit Function
+	End if
+	
+	'// Disable Zone Checks
+	oEnv("SEE_MASK_NOZONECHECKS") = 1 
+
+	'Install Windows Installer 4.5
+	iRetVal = oShell.Run("""" & oUtility.ScriptDir & "\source\wmp11-windowsxp-x86-enu.exe"" /q", 0, True)
+	
+	if (iRetVal = 0) or (iRetVal = 3010) then
+		ZTIProcess = Success 
+	Else 
+		ZTIProcess = Failure
+	End If
+	
+	oLogging.CreateEntry "Install-Media Player 11: Return code from command = " & iRetVal, LogTypeInfo
+	oLogging.CreateEntry "Install-Media Player 11: Finished Starting Media Player 11 installation", LogTypeInfo	
+
+	'/// Enable Zone Checks
+	oEnv.Remove("SEE_MASK_NOZONECHECKS")
+
+End Function 
+
+
+	</script>
+</job>

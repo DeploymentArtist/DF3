@@ -1,0 +1,293 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<applications>
+  <application guid="{7406e0f9-1a51-43cb-9b48-a3d112dbd661}" enable="True">
+    <Name>Configure - WDS</Name>
+    <CreatedTime>12/29/2010 6:57:16 PM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>12/14/2011 5:15:42 PM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Configure - WDS</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Configure - WDS</Source>
+    <CommandLine>cscript.exe Configure-WDS.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Configure - WDS</WorkingDirectory>
+    <Reboot>False</Reboot>
+  </application>
+  <application guid="{40be9ead-ea75-4f72-bf0e-c455db971bbc}" enable="True">
+    <Name>Install - ConfigMgr 2012 Beta 2</Name>
+    <CreatedTime>5/3/2011 6:52:14 PM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>5/3/2011 6:52:14 PM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Install - ConfigMgr 2012 Beta 2</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Install ConfigMgr 2012 Beta 2</Source>
+    <CommandLine>cscript.exe Install-ConfigMgr2012Beta2.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Install ConfigMgr 2012 Beta 2</WorkingDirectory>
+  </application>
+  <application guid="{d6e4680b-02d2-4226-b87c-b0018ecabd3c}" enable="True">
+    <Name>Configure - Open Firewall for SQL Server 2008 Communication</Name>
+    <CreatedTime>11/29/2011 8:36:20 PM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>12/13/2011 4:08:13 PM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Configure - Open Firewall for SQL Server 2008 Communication</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Configure - Open Firewall for SQL Server 2008 Communication</Source>
+    <CommandLine>cscript.exe Configure-OpenFirewallforSQL2008Communication.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Configure - Open Firewall for SQL Server 2008 Communication</WorkingDirectory>
+    <Reboot>False</Reboot>
+  </application>
+  <application guid="{a9261d56-041c-4b89-87f8-c73452758634}" enable="True">
+    <Name>Configure - Create AD Structure</Name>
+    <CreatedTime>12/12/2011 12:01:32 AM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>12/12/2011 12:01:32 AM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Configure - Create AD Structure</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Configure - Create AD Structure</Source>
+    <CommandLine>cscript.exe Configure-CreateADStructures.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Configure - Create AD Structure</WorkingDirectory>
+  </application>
+  <application guid="{5bd74007-fd53-4e71-84e4-cc0a6af6ca43}" enable="True">
+    <Name>Configure - Set SQL Server 2008 Memory Usage</Name>
+    <CreatedTime>12/12/2011 5:40:52 AM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>12/12/2011 5:40:52 AM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Configure - Set SQL Server 2008 Memory Usage</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Configure - Set SQL Server 2008 Memory Usage</Source>
+    <CommandLine>cscript.exe Configure-SQLServerMemory.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Configure - Set SQL Server 2008 Memory Usage</WorkingDirectory>
+  </application>
+  <application guid="{3359c71b-812d-460d-9925-2eb74223878b}" enable="True">
+    <Name>Configure - Final Cleanup</Name>
+    <CreatedTime>12/12/2011 6:13:37 AM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>12/13/2011 4:08:34 PM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Configure - Final Cleanup</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Configure - Final Cleanup</Source>
+    <CommandLine>cscript.exe Configure-FinalCleanup.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Configure - Final Cleanup</WorkingDirectory>
+    <Reboot>False</Reboot>
+  </application>
+  <application guid="{d95f60aa-31ca-453e-890c-58fad7a6eaa0}" enable="True">
+    <Name>Configure - DHCP Service</Name>
+    <CreatedTime>12/13/2011 2:03:30 AM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>12/13/2011 2:03:30 AM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Configure - DHCP Service</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Configure - DHCP Service</Source>
+    <CommandLine>cscript.exe Configure-DHCPService.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Configure - DHCP Service</WorkingDirectory>
+  </application>
+  <application guid="{ff0981c9-5d79-4eae-b78f-6d9599cab3fa}" enable="True">
+    <Name>Configure - Set Administrator Autologon in Domain</Name>
+    <CreatedTime>12/13/2011 7:24:43 AM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>12/14/2011 2:48:30 AM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Configure - Set Administrator Autologon in Domain</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Configure - Set Administrator Autologon in Domain</Source>
+    <CommandLine>cscript.exe Configure-SetAdministratorAutologoninDomain.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Configure - Set Administrator Autologon in Domain</WorkingDirectory>
+    <Reboot>False</Reboot>
+  </application>
+  <application guid="{95c2a915-8eda-40db-8bfe-2becb7e0983a}" enable="True">
+    <Name>Install - BGInfo</Name>
+    <CreatedTime>12/14/2011 1:07:44 AM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>12/14/2011 1:07:44 AM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Install - BGInfo</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Install - BGInfo</Source>
+    <CommandLine>cscript.exe Install-BGInfo.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Install - BGInfo</WorkingDirectory>
+  </application>
+  <application guid="{bbad0ee6-f9aa-4f94-88ad-a492ad27b963}" enable="True">
+    <Name>Install - ConfigMgr 2007 Toolkit V2</Name>
+    <CreatedTime>12/14/2011 11:28:05 PM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>12/14/2011 11:28:05 PM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Install - ConfigMgr 2007 Toolkit V2</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Install - ConfigMgr 2007 Toolkit V2</Source>
+    <CommandLine>cscript.exe Install-ConfigMgr2007ToolkitV2.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Install - ConfigMgr 2007 Toolkit V2</WorkingDirectory>
+  </application>
+  <application guid="{1bb22b0c-c3de-470d-a884-1d5b0825c8f6}" enable="True">
+    <Name>Configure - WebDAV</Name>
+    <CreatedTime>12/14/2011 11:29:28 PM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>12/14/2011 11:29:28 PM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Configure - WebDAV</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Configure - WebDAV</Source>
+    <CommandLine>cscript.exe Configure-WebDAV.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Configure - WebDAV</WorkingDirectory>
+  </application>
+  <application guid="{9fe0fd82-8945-4a6e-8a97-ec18c75caa48}" enable="True">
+    <Name>Install - ConfigMgr 2007 SP2</Name>
+    <CreatedTime>12/14/2011 11:30:59 PM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>12/14/2011 11:30:59 PM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Install - ConfigMgr 2007 SP2</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Install - ConfigMgr 2007 SP2</Source>
+    <CommandLine>cscript.exe Install-ConfigMgr2007SP2.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Install - ConfigMgr 2007 SP2</WorkingDirectory>
+  </application>
+  <application guid="{e28e2c61-3fb7-4faa-90c1-45fb4ec502ac}" enable="True">
+    <Name>Install - SQL Server 2008 R2 Enterprise</Name>
+    <CreatedTime>12/14/2011 11:46:15 PM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>12/14/2011 11:46:15 PM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Install - SQL Server 2008 R2</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Install - SQL Server 2008 R2</Source>
+    <CommandLine>cscript.exe Install-SQL2008R2.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Install - SQL Server 2008 R2</WorkingDirectory>
+  </application>
+  <application guid="{43dc8d54-c842-41fa-9bab-de98458d2a32}" enable="True" hide="False">
+    <Name>Install - SQL Server 2008 R2 Express (SQLEXPRESS)</Name>
+    <CreatedTime>12/14/2011 11:47:44 PM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>1/4/2012 5:08:31 PM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Install - SQL Server 2008 R2 Express (SQLEXPRESS)</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Install - SQL Server 2008 R2 Express</Source>
+    <CommandLine>cscript.exe Install-SQL2008R2ExpressSQLEXPRESSInstance.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Install - SQL Server 2008 R2 Express</WorkingDirectory>
+    <Reboot>False</Reboot>
+  </application>
+  <application guid="{6790e32d-c7ec-489e-9340-edc5bfbe96e7}" enable="True">
+    <Name>Configure - Extend AD for ConfigMgr 2007</Name>
+    <CreatedTime>12/14/2011 11:48:53 PM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>1/11/2012 11:13:46 PM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Configure - Extend AD for ConfigMgr 2007</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Configure - Extend AD for ConfigMgr 2007</Source>
+    <CommandLine>cscript.exe Configure-ExtendADforConfigMgr2007.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Configure - Extend AD for ConfigMgr 2007</WorkingDirectory>
+    <Reboot>False</Reboot>
+  </application>
+  <application guid="{eb5f7f92-11fb-4101-ad1c-7d788eeb0587}" enable="True">
+    <Name>Configure - Set AD permissions for ConfigMgr 2007</Name>
+    <CreatedTime>12/15/2011 12:14:48 AM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>12/15/2011 12:14:48 AM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Configure - Set AD permissions for ConfigMgr 2007</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Configure - Set AD permissions for ConfigMgr 2007</Source>
+    <CommandLine>cscript.exe Configure-SetADPermissionsForConfigMgr2007.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Configure - Set AD permissions for ConfigMgr 2007</WorkingDirectory>
+  </application>
+  <application guid="{21d75c18-607c-4a03-8ef2-71523a5369dc}" enable="True">
+    <Name>Install - ConfigMgr 2007 R3</Name>
+    <CreatedTime>12/15/2011 12:43:09 AM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>12/15/2011 12:43:09 AM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Install - ConfigMgr 2007 R3</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Install - ConfigMgr 2007 R3</Source>
+    <CommandLine>cscript.exe Install-ConfigMgr2007R3.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Install - ConfigMgr 2007 R3</WorkingDirectory>
+  </application>
+  <application guid="{39d257d5-6f9b-42cd-ac7f-bfa5e83e8eb1}" enable="True">
+    <Name>Install - SQL Server 2008 R2 Express (MAPS)</Name>
+    <CreatedTime>1/4/2012 3:48:06 PM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>1/4/2012 3:48:42 PM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Install - SQL Server 2008 R2 Express (MAPS)</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <CommandLine>cscript.exe Install-SQL2008R2ExpressMAPSInstance.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Install - SQL Server 2008 R2 Express</WorkingDirectory>
+    <Reboot>False</Reboot>
+  </application>
+  <application guid="{d63f05c0-29c1-4c59-a0e9-7d838d2e1c31}" hide="False" enable="True">
+    <Name>Install - NET FrameWork 4.0</Name>
+    <Comments></Comments>
+    <CreatedTime>2/15/2012 10:43:31 AM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>2/15/2012 10:43:31 AM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <DisplayName></DisplayName>
+    <ShortName>Install - NET FrameWork 4.0</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Install - NET FrameWork 4.0</Source>
+    <CommandLine>cscript.exe Install-NetFramework40.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Install - NET FrameWork 4.0</WorkingDirectory>
+    <UninstallKey></UninstallKey>
+    <Reboot></Reboot>
+  </application>
+  <application guid="{3cdd3400-a8b4-43b2-a5e9-7f252ff2cb86}" enable="True">
+    <Name>Install - Microsoft Hyper-V Integration Services</Name>
+    <CreatedTime>3/7/2012 2:58:49 AM</CreatedTime>
+    <CreatedBy>HYPERV001\johan.arwidmark</CreatedBy>
+    <LastModifiedTime>3/7/2012 2:58:49 AM</LastModifiedTime>
+    <LastModifiedBy>HYPERV001\johan.arwidmark</LastModifiedBy>
+    <ShortName>Install - Microsoft Hyper-V Integration Services</ShortName>
+    <Version></Version>
+    <Publisher></Publisher>
+    <Language></Language>
+    <Source>.\Applications\Install - Microsoft Hyper-V Integration Services Application</Source>
+    <CommandLine>cscript.exe Install-MSHyperVIS.wsf</CommandLine>
+    <WorkingDirectory>.\Applications\Install - Microsoft Hyper-V Integration Services Application</WorkingDirectory>
+  </application>
+</applications>

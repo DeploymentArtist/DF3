@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OSDSetup>
+  <Style>
+    <Setter Property="bannerFilename" Value="UDI_Wizard_Banner.bmp" />
+  </Style>
+  <Pages>
+    <Page Name="WelcomePage" Behavior="enabled">
+      <Setter Property="welcomeText">Welcome to the Windows 7 OSD Setup Wizard. 
+
+This Wizard will walk you through a series of screens that will allow you to customize and install Windows 7.  During setup you can choose to back-up and restore your data and settings or you may choose to do a clean install and wipe all data.  After you have entered machine and user information, the Wizard will begin a full install of Windows 7.  
+
+Click on the 'Next' button to start your install. 
+
+Please allow approximately 2 hours for installation.  
+
+If you need Support during this process, please call your helpdesk.</Setter>
+    </Page>
+    <Page Name="PreFlightPage" Behavior="enabled">
+      <PreFlight>
+        <Option DisplayName="Check Windows Scripting Host">
+          <Setter Property="filename"><![CDATA[%windir%\system32\cscript.exe]]></Setter>
+          <Setter Property="parameters"><![CDATA[Preflight\OSDCheckWSH.vbs]]></Setter>
+          <ExitCodes>
+            <ExitCode State="Success" Value="0" Text="" />
+            <ExitCode State="Error" Value="*" Text="Windows Scripting Host not installed." />
+          </ExitCodes>
+        </Option>
+        <Option DisplayName="Dual Boot Check">
+          <Setter Property="filename"><![CDATA[%windir%\system32\cscript.exe]]></Setter>
+          <Setter Property="parameters"><![CDATA[Preflight\osdbootcount.vbs]]></Setter>
+          <ExitCodes>
+            <ExitCode State="Success" Value="1" Text="" />
+            <ExitCode State="Warning" Value="*" Text="Multiple partitions were found. If you continue you may not be able to boot to one or more previous operating systems." />
+            <ExitCode State="Error" Value="0" Text="No bootable operating systems found. We have a serious problem!" />
+            <ExitCode State="Warning" Value="910" Text="Unable to connect to BCD store in WMI. If you continue you may not be able to boot to one or more previous operating systems." />
+            <ExitCode State="Warning" Value="920" Text="Unable to open BCD store in WMI. If you continue you may not be able to boot to one or more previous operating systems." />
+            <ExitCode State="Warning" Value="930" Text="Unable to enumerate bootable entries. If you continue you may not be able to boot to one or more previous operating systems." />
+          </ExitCodes>
+        </Option>
+        <Option DisplayName="Disk Space">
+          <Setter Property="filename"><![CDATA[%windir%\system32\cscript.exe]]></Setter>
+          <Setter Property="parameters"><![CDATA[Preflight\OSDDiskCheck.vbs %systemdrive%]]></Setter>
+          <ExitCodes>
+            <ExitCode State="Success" Value="0" Text="" />
+            <ExitCode State="Error" Value="10" Text="Insufficient volume size. The volume containing the system drive must be at least 20GB in size." />
+            <ExitCode State="Error" Value="20" Text="Insufficient free space. A volume with at least 1GB of free space must be available." />
+            <ExitCode State="Error" Value="30" Text="The system drive is not NTFS. This volume must be NTFS before continuing." />
+          </ExitCodes>
+        </Option>
+        <Option DisplayName="Check Memory Requirements">
+          <Setter Property="filename"><![CDATA[%windir%\system32\cscript.exe]]></Setter>
+          <Setter Property="parameters"><![CDATA[Preflight\OSDCheckMem.vbs]]></Setter>
+          <ExitCodes>
+            <ExitCode State="Success" Value="0" Text="" />
+            <ExitCode State="Error" Value="*" Text="The machine does not meet the memory requirements. At least 1 GB memory is required." />
+          </ExitCodes>
+        </Option>
+        <Option DisplayName="Wired Network Check">
+          <Setter Property="filename"><![CDATA[$BUILTIN$:WIRELESS]]></Setter>
+          <Setter Property="parameters"><![CDATA[]]></Setter>
+          <ExitCodes>
+            <ExitCode State="Success" Value="0" Text="" />
+            <ExitCode State="Error" Value="*" Text="No Wired connection found. Please plug-in to a network tap." />
+          </ExitCodes>
+        </Option>
+        <Option DisplayName="AC Power Check">
+          <Setter Property="filename"><![CDATA[$BUILTIN$:ACPOWER]]></Setter>
+          <Setter Property="parameters"><![CDATA[]]></Setter>
+          <ExitCodes>
+            <ExitCode State="Success" Value="0" Text="" />
+            <ExitCode State="Error" Value="*" Text="No AC power detected. Please plug-in to power." />
+          </ExitCodes>
+        </Option>
+        <Option DisplayName="Check Drive Encryption">
+          <Setter Property="filename"><![CDATA[%windir%\system32\cscript.exe]]></Setter>
+          <Setter Property="parameters"><![CDATA[Preflight\OSDBitlockerState.vbs %systemdrive%]]></Setter>
+          <ExitCodes>
+            <ExitCode State="Success" Value="0" Text="" />
+            <ExitCode State="Warning" Value="1" Text="Drive is fully encrypted. Encryption will be paused during deployment and resumed." />
+            <ExitCode State="Error" Value="2" Text="Drive is currently encrypting. Please fully encrypt or pause encryption to continue." />
+            <ExitCode State="Error" Value="3" Text="Drive is currently decrypting. Please fully decrypt or pause decryption to continue." />
+            <ExitCode State="Warning" Value="4" Text="Drive encryption is paused. Encryption will resume after deployment has completed." />
+            <ExitCode State="Warning" Value="5" Text="Drive encryption is paused. Encryption will resume after deployment has completed." />
+            <ExitCode State="Error" Value="*" Text="A script error was detected. Please contact support to continue." />
+          </ExitCodes>
+        </Option>
+        <Option DisplayName="Application Discovery">
+          <Setter Property="filename"><![CDATA[Preflight\AppDiscovery\AppDiscovery.exe]]></Setter>
+          <Setter Property="parameters"><![CDATA[/readcfg:..\..\Scripts\UDIWizard_Config.xml /writecfg:preflight\AppDiscovery\AppDiscoveryresult.xml /log:preflight\AppDiscovery\AppDiscovery.log]]></Setter>
+          <ExitCodes>
+            <ExitCode State="Success" Value="0" Text="Successfully scanned applications." />
+            <ExitCode State="Warning" Value="*" Text="Could not run application discovery engine (reason unknown). The appropriate applications may not be selected." />
+            <ExitCode State="Warning" Value="1" Text="One or more warnings were encountered (non-fatal) while running App Discovery. The appropriate applications may not be selected." />
+            <ExitCode State="Warning" Value="16777216" Text="Critical problems where encountered while initializing App Discovery. The appropriate applications may not be selected." />
+            <ExitCode State="Warning" Value="33554432" Text="Critical problems where encountered while processing the Application Master List. The appropriate applications may not be selected." />
+          </ExitCodes>
+        </Option>
+        <Option DisplayName="Get Printers">
+          <Setter Property="filename"><![CDATA[%windir%\system32\cscript.exe]]></Setter>
+          <Setter Property="parameters"><![CDATA[Preflight\OSD_GetPrinters.vbs /xmlout:%systemdrive%\PrinterList.xml]]></Setter>
+          <ExitCodes>
+            <ExitCode State="Success" Value="0" Text="" />
+            <ExitCode State="Warning" Value="10" Text="Output filename not specified correctly." />
+            <ExitCode State="Warning" Value="20" Text="Unable to create output file." />
+            <ExitCode State="Warning" Value="*" Text="An Unknown error has occurred." />
+          </ExitCodes>
+        </Option>
+      </PreFlight>
+    </Page>
+    <Page Name="ComputerPage" Behavior="enabled">
+      <Setter Property="useOriginalComputerName">true</Setter>
+      <Setter Property="generateComputerName">true</Setter>
+      <Setter Property="generateComputerNameRetryAttempts">0</Setter>
+      <Setter Property="adCredentialCheck">true</Setter>
+      <Setter Property="adComputerObjectCheck">true</Setter>
+      <Setter Property="invalidCharacters"><![CDATA["`~!@#$%^&*()=+[]{}\|;:'",<>/?.]]></Setter>
+      <DataCollection Name="Domain">
+        <DataItem DisplayName="VIAMONSTRA">
+          <Setter Property="Domain" Value="VIAMONSTRA" />
+          <Setter Property="OrganizationalUnits">
+            <DataCollection Name="OU">
+              <DataItem DisplayName="Workstations">
+                <Setter Property="OU" Value="OU=Workstations,OU=ViaMonstra,DC=corp,DC=viamonstra,DC=com" />
+              </DataItem>
+            </DataCollection>
+          </Setter>
+        </DataItem>
+      </DataCollection>
+      <Field Name="computerName" State="enabled" />
+      <Field Name="workgroup" State="disabled">WORKGROUP</Field>
+      <Field Name="domain" State="enabled">VIAMONSTRA</Field>
+      <Field Name="organizationalUnit" State="enabled" />
+      <Field Name="domainOrWorkgroup" State="enabled">Domain</Field>
+      <Field Name="userName" State="enabled" />
+      <Field Name="password" State="enabled" />
+    </Page>
+    <Page Name="UserConfigurationPage" Behavior="enabled">
+      <Field Name="localAdministratorPassword" State="enabled" />
+      <Field Name="administrators" State="disabled" />
+    </Page>
+    <Page Name="LanguagePage" Behavior="enabled">
+      <DataCollection Name="LanguagePacks">
+        <DataItem DisplayName="English (United States)">
+          <Setter Property="language" Value="EN-US" />
+        </DataItem>
+      </DataCollection>
+      <Field Name="timeZone" State="enabled">W. Europe Standard Time</Field>
+      <Field Name="inputLocale" State="enabled">Swedish (Sweden)</Field>
+      <Field Name="keyboardLocale" State="enabled">United States - English</Field>
+      <Field Name="languagePack" State="enabled">English (United States)</Field>
+    </Page>
+    <Page Name="VolumePage" Behavior="enabled">
+      <Setter Property="minimumVolumeSize">10737418240</Setter>
+      <DataCollection Name="ImageSelection">
+        <DataItem DisplayName="Windows 7">
+          <Setter Property="index">1</Setter>
+          <Setter Property="architecture">amd64</Setter>
+        </DataItem>
+      </DataCollection>
+      <Field Name="diskPart" State="enabled">False</Field>
+      <Field Name="volumeSelection" State="disabled" />
+      <Field Name="windowsDirectory" State="disabled" />
+      <Field Name="image" State="enabled" />
+    </Page>
+    <Page Name="ApplicationPage" Behavior="silent">
+      <Applications Link.Uri="preflight\AppDiscovery\AppDiscoveryresult.xml" TsAppBaseVariable="PACKAGES" RootDisplayName="Applications">
+        <SelectedApplications />
+        <ApplicationGroup Name="HR Applications">
+          <Application DisplayName="Office 2007 SP2" State="disabled" Id="1">
+            <Setter Property="description"><![CDATA[Office Suite]]></Setter>
+            <Program Architecture="x86" PackageId="MSD0000C" PackageName="Office 2007 SP2"><![CDATA[Office Setup]]></Program>
+            <Program Architecture="amd64" PackageId="MSD0000C" PackageName="Office 2007 SP2"><![CDATA[Office Setup]]></Program>
+            <Filters>
+              <Filter Type="WMI">
+                <Setter Property="query"><![CDATA[SELECT * FROM Win32_ComputerSystem WHERE TotalPhysicalMemory > 1610612736]]></Setter>
+                <Setter Property="namespace"><![CDATA[root\cimv2]]></Setter>
+              </Filter>
+            </Filters>
+            <ApplicationMappings>
+              <Match Type="SMS" OperatorCondition="OR" DisplayName="Office 97">
+                <Setter Property="Program.PackageId">ABC00001</Setter>
+                <Setter Property="Program.Name"><![CDATA[Office Install]]></Setter>
+              </Match>
+              <Match Type="MSI" OperatorCondition="OR" DisplayName="Office 2003">
+                <Setter Property="ProductId">{11111111-1111-1111-1111-111111111111}</Setter>
+              </Match>
+            </ApplicationMappings>
+          </Application>
+        </ApplicationGroup>
+        <ApplicationGroup Name="Test Applications" />
+      </Applications>
+    </Page>
+    <Page Name="SummaryPage" Behavior="enabled" />
+  </Pages>
+</OSDSetup>

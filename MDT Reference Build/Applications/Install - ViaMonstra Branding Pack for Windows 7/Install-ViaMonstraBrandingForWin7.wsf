@@ -1,0 +1,102 @@
+<job id="Install-ViaMonstraBrandingForWin7">
+<script language="VBScript" src="..\..\scripts\ZTIUtility.vbs"/>
+<script language="VBScript"> 
+
+'//----------------------------------------------------------------------------
+'// Purpose: Install - ViaMonstra Branding Pack for Windows 7 
+'// Usage: cscript Install-ViaMonstraBrandingForWin7.wsf [/debug:true]
+'// Version: 1.0 - 7 Jan 2012 - Mikael Nystrom
+'//
+'// This script is provided "AS IS" with no warranties, confers no rights and 
+'// is not supported by the authors or Deployment Artist. 
+'//
+'//----------------------------------------------------------------------------
+
+'//----------------------------------------------------------------------------
+'// Global constant and variable declarations
+'//---------------------------------------------------------------------------- 
+
+Option Explicit 
+
+Dim iRetVal 
+
+'//----------------------------------------------------------------------------
+'// End declarations
+'//---------------------------------------------------------------------------- 
+
+'//----------------------------------------------------------------------------
+'// Main routine
+'//---------------------------------------------------------------------------- 
+
+On Error Resume Next
+iRetVal = ZTIProcess
+ProcessResults iRetVal
+On Error Goto 0 
+
+'//---------------------------------------------------------------------------
+'//
+'// Function: ZTIProcess()
+'//
+'// Input: None
+'// 
+'// Return: Success - 0
+'// Failure - non-zero
+'//
+'// Purpose: Perform main ZTI processing
+'// 
+'//---------------------------------------------------------------------------
+Function ZTIProcess() 
+
+	Dim sSName
+	Dim sFile
+	Dim sBaseFolder
+
+	sSName=oUtility.ScriptName
+	sBaseFolder=oUtility.ScriptDir
+
+	'Working on the Info folder
+	If oFSO.FolderExists("C:\Windows\system32\oobe\Info") Then
+	oLogging.CreateEntry sSName & " The Info folder already exists",LogTypeinfo
+	Else
+		oLogging.CreateEntry sSName & ": Creating the Info folder",LogTypeInfo
+		oFSO.createFolder("C:\Windows\system32\oobe\Info")
+	End If
+
+	'Working on the Backgrounds folder
+	If oFSO.FolderExists("C:\Windows\system32\oobe\Info\Backgrounds") Then
+	oLogging.CreateEntry sSName & " The Backgrounds folder already exists",LogTypeinfo
+	Else
+		oLogging.CreateEntry sSName & ": Creating the Backgrounds folder",LogTypeInfo
+		oFSO.createFolder("C:\Windows\system32\oobe\Info\Backgrounds")
+	End If
+
+	oLogging.CreateEntry sSName & " Copying the OEMLOGO file",LogTypeInfo
+	oFSO.CopyFile (sBaseFolder & "\OEMLogo\OEMLOGO.bmp"), ("C:\Windows\System32\OEMLOGO.bmp"), True
+
+	oLogging.CreateEntry sSName & " Copying the CorporateWallpaper file",LogTypeInfo
+	oFSO.CopyFile (sBaseFolder & "\Wallpaper\CorporateWallpaper.jpg"), ("C:\Windows\Web\Wallpaper\CorporateWallpaper.jpg"), True
+
+	oLogging.CreateEntry sSName & " Copying the LoginUI file",LogTypeInfo
+	oFSO.CopyFile (sBaseFolder & "\LogonUI\BackgroundDefault.jpg"), ("C:\Windows\system32\oobe\Info\Backgrounds\BackgroundDefault.jpg"), True
+
+	oShell.RegWrite "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation\Logo", "C:\Windows\System32\OEMLOGO.bmp", "REG_SZ"
+	oLogging.CreateEntry sSName & " Writing Reg Value for OEMLogo",LogTypeInfo
+
+	oshell.RegWrite "HKEY_CURRENT_USER\Control Panel\Desktop\WallPaper","C:\Windows\Web\Wallpaper\CorporateWallpaper.jpg","REG_SZ" 
+	oLogging.CreateEntry sSName & " Writing Reg Value for CorporateWallpaper.jpg",LogTypeInfo
+	
+	oshell.RegWrite "HKEY_CURRENT_USER\Control Panel\Desktop\wallpaperstyle",2,"REG_SZ"
+	oLogging.CreateEntry sSName & " wallpaperstyle",LogTypeInfo
+	
+	oshell.RegWrite "HKEY_CURRENT_USER\Control Panel\Desktop\TileWallpaper",0,"REG_SZ"
+	oLogging.CreateEntry sSName & " TileWallpaper",LogTypeInfo
+
+	oShell.RegWrite "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\Background\OEMBackground", "1", "REG_DWORD"
+	oLogging.CreateEntry sSName & " OEMBackground",LogTypeInfo
+
+	oLogging.CreateEntry sSName & " Finished " & sSName & " installation", LogTypeInfo
+	
+End Function 
+
+</script>
+</job>

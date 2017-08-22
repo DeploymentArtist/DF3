@@ -1,0 +1,221 @@
+<html>
+
+<!--
+
+//////////////////////////////////////////////////
+//
+// Script File:
+//
+//  Frontend.hta
+//
+//   This script drives the Frontend for ConfigMgr 2007
+//
+//   Author: Johan Arwidmark	
+//   URL: http://www.deployvista.com
+//   
+//   Disclaimer
+//   This script is provided "AS IS" without express 
+//   or implied warranty of any kind.
+//
+//////////////////////////////////////////////////
+
+-->
+
+<head>
+<title>Frontend for ConfigMgr 2007</title>
+
+<link href="Wizard.css" type="text/css" rel="stylesheet">
+        
+<HTA:APPLICATION ID="oWizard" APPLICATIONNAME="" ICON="Wizard.ico" 
+    SCROLL="no" 
+    SELECTION="no" 
+    INNERBORDER="no" 
+    BORDER="normal" 
+    SINGLEINSTANCE="no" 
+    SYSMENU="yes" 
+    MAXIMIZEBUTTON="no" 
+    MINIMIZEBUTTON="no" 
+    />
+</head>
+
+<script language="vbscript" type="text/vbscript" src="ZTIUtility.vbs"></script> 
+<script language="vbscript" type="text/vbscript">
+
+Sub Window_onload
+
+'on error resume next
+
+	CenterWindow 640,480
+	
+	ButtonFinish.disabled = true
+
+	GetFrontendData()
+
+    PrintOut "Serial Number: " & oEnvironment.Item("SERIALNUMBER")
+    PrintOut "Model: " & oEnvironment.Item("MODEL")
+    PrintOut "MAC Address: " & oEnvironment.Item("MACADDRESS001")
+    PrintOut "Default Gateway: " & oEnvironment.Item("DEFAULTGATEWAY001")
+    	
+	
+End Sub	
+
+
+
+Sub CenterWindow( widthX, heightY )
+    self.ResizeTo widthX, heightY 
+    self.MoveTo (screen.Width - widthX)/2, (screen.Height - heightY)/2
+End Sub
+
+
+Sub GetFrontendData
+
+	sSelectedRole = oEnvironment.Item("ROLE")
+  	sComputerName.value = oEnvironment.Item("OSDCOMPUTERNAME")
+  	sComputerDescription.value = oEnvironment.Item("COMPUTERDESCRIPTION")
+  	
+    set oXMLDoc = oUtility.CreateXMLDOMObjectEx("OUList.xml")
+    for each node in oXMLDoc.documentElement.childNodes
+        Set objOption = Document.createElement("OPTION")
+        
+        sOUText = node.attributes.getNamedItem("distinguishedName").text
+        
+        If InStr(sOUText, "Domain Controllers") Then
+            ' Do nothing
+        Else
+        
+            sOUText = replace(sOUText,"DC=","")
+            sOUText = replace(sOUText,"dc=","")
+            sOUText = replace(sOUText,"OU=","")
+            sOUText = replace(sOUText,"ou=","")
+            sOUText = replace(sOUText,",","/")
+                    
+            objOption.Text = sOUText
+            
+            objOption.Value = node.attributes.getNamedItem("distinguishedName").text
+            ddOUList.Add(objOption) 
+        End If
+
+    next
+
+    set oXMLDoc = oUtility.CreateXMLDOMObjectEx("RoleList.xml")
+    for each node in oXMLDoc.documentElement.childNodes
+        Set objOption = Document.createElement("OPTION")
+        objOption.Text = node.attributes.getNamedItem("Role").text
+        objOption.Value = node.attributes.getNamedItem("Role").text
+        ddRoleList.Add(objOption) 
+    next
+
+    set oXMLDoc = oUtility.CreateXMLDOMObjectEx("TaskSequenceList.xml")
+    for each node in oXMLDoc.documentElement.childNodes
+        Set objOption = Document.createElement("OPTION")
+        objOption.Text = node.attributes.getNamedItem("Name").text
+        objOption.Value = node.attributes.getNamedItem("CollectionID").text
+        ddCollectionList.Add(objOption) 
+    next
+
+		
+End Sub
+
+
+
+Sub ButtonFinishClick
+    oEnvironment.Item("WizardComplete") = "Y"
+    oEnvironment.Item("OSDCOMPUTERNAME") = sComputerName.value
+    oEnvironment.Item("COLLECTIONID") = ddCollectionList.value
+    oEnvironment.Item("ROLE001") = ddRoleList.value
+    oEnvironment.Item("COMPUTERDESCRIPTION") = sComputerDescription.value
+    oEnvironment.Item("MACHINEOBJECTOU") = ddOUList.value
+
+   
+    window.Close
+End Sub    
+
+sub ButtonCancelClick
+	If Msgbox("Are you sure you want to cancel?",4,"Cancel wizard?") = vbYES Then
+		window.Close
+	End If
+end sub
+
+
+Sub PrintOut(strText)
+	txtStdOut.value = txtStdOut.value & VbCrLf & strText
+End Sub
+
+Function ValidateComputerName
+	
+	If Len(sComputerName.value) > 15 then
+		ButtonFinish.disabled = true
+	ElseIf sComputerName.value = "" then
+		ButtonFinish.disabled = true
+	Else 
+	    ButtonFinish.disabled = false
+    End If
+    
+ End Function
+
+
+</script>
+
+<body Language="VBScript">
+        <!-- Create a 2 x 3 table to place all of our content in. Makes resizing of windows easier -->
+        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="height: 100%;">
+
+            <!-- Content Area of Wizard -->
+            <tr valign="top">
+                <td colspan="2" >
+                    <div id="MyContentArea" class="ContentArea" >
+                        
+                        <H1>Frontend for ConfigMgr 2007</H1>
+                        <span style="width: 95%;">
+                        
+                            <table cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td width="150">Computer name:</td>
+                                    <td><input type=text id="sComputerName" name=sComputerName size=40 onpropertychange=ValidateComputerName tabindex=1></td>
+                                </tr>
+                                
+                                <tr>
+                                    <td>Computer Description:</td>
+                                    <td><input type=text id="sComputerDescription" name=sComputerDescription size=40 tabindex=2></td>
+                                </tr>
+
+                                <tr>
+                                    <td>Role</td>
+	                                <td><Select name="ddRoleList" tabindex=4></Select>
+	                                </td>
+	                            </tr>
+	                            
+	                            <tr>
+                                    <td>Organizational Unit</td>
+                                    <td><Select name="ddOUList" tabindex=5></Select>
+                                </tr>
+
+	                            <tr>
+                                    <td>OS Image</td>
+                                    <td><Select name="ddCollectionList" tabindex=7></Select>
+                                </tr>
+
+                                <tr>
+	                                <td colspan="2"><br>Info: <br><textarea name="txtStdOut"  rows="6" cols="90" unselectable = "off" tabindex=6></textarea></td>
+                                </tr>
+
+                            </table>
+
+                        </span>
+                    </div>
+                      
+                </td>            
+            </tr>
+            
+            <!-- Footer of Wizard -->
+            <tr valign="middle"  >
+                <td class="CommandArea" id="RightWizardButtons" align="right" colspan="2" >
+                    <button accesskey=N type=submit id=buttonFinish onclick=ButtonFinishClick ><U>F</U>inish</button>
+                    <button accesskey=C id=buttonCancel onclick=ButtonCancelClick><U>C</U>ancel</button>
+                </td>
+            </tr>
+
+        </table>
+    </body>
+</html>
+

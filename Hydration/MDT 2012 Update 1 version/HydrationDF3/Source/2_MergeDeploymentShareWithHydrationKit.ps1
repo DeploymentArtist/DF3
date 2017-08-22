@@ -1,0 +1,2 @@
+﻿Copy-Item -Path "C:\HydrationDF3\Source\DS" -Destination "C:\HydrationDF3" -Recurse -Verbose -Force
+Copy-Item -Path "C:\HydrationDF3\Source\ISO\Control" -Destination "C:\HydrationDF3\ISO\Content\Deploy" -Recurse -Verbose -Force
